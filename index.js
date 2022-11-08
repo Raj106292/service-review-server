@@ -38,6 +38,7 @@ const run = async() => {
 
         app.post('/jwt', (req, res) => {
             const user = req.body;
+            console.log(user);
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24d' });
             res.send({ token });
         })
@@ -63,9 +64,30 @@ const run = async() => {
             res.send(service);
         });
 
+        app.get('/reviews', async (req, res) => {
+            // const decoded = req.decoded;
+            // if(decoded.email !== req.query.email){
+            //     res.status(403).send({message: 'unauthorized access'})
+            // }
+            let query = {};
+            if (req.query.email) {
+                query = { email: req.query.email };
+            }
+            const cursor = reviewsCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
+
         app.post('/reviews', verifyJWT, async (req, res) => {
             const review = req.body;
             const result = await reviewsCollection.insertOne(review);
+            res.send(result);
+        });
+
+        app.delete('/reviews/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewsCollection.deleteOne(query);
             res.send(result);
         });
     }
