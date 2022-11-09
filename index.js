@@ -84,6 +84,20 @@ const run = async() => {
             res.send(result);
         });
 
+        app.patch('/reviews/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const reviewUser = req.body.reviewUser;
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    reviewUser: reviewUser,
+                }
+            };
+            const result = await reviewsCollection.findOneAndUpdate(query, updatedDoc, {upsert: true, new: true});
+            res.send(result);
+        });
+
+
         app.delete('/reviews/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
