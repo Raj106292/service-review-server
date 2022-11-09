@@ -45,7 +45,7 @@ const run = async() => {
 
         app.get('/limited/services', async (req, res) => {
             const query = {};
-            const cursor = servicesCollection.find(query);
+            const cursor = servicesCollection.find(query).sort( { price: -1 } );
             const services = await cursor.limit(3).toArray();
             res.send(services);
         });
@@ -64,8 +64,13 @@ const run = async() => {
             res.send(service);
         });
 
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            const result = await servicesCollection.insertOne(service);
+            res.send(result);
+        })
+
         app.get('/reviews', async (req, res) => {
-            console.log(req.query);
             let query = {};
             if (req.query.email) {
                 query = { email: req.query.email };
