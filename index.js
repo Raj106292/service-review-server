@@ -65,17 +65,17 @@ const run = async() => {
         });
 
         app.get('/reviews', async (req, res) => {
-            // const decoded = req.decoded;
-            // if(decoded.email !== req.query.email){
-            //     res.status(403).send({message: 'unauthorized access'})
-            // }
+            console.log(req.query);
             let query = {};
             if (req.query.email) {
                 query = { email: req.query.email };
             }
+            else if(req.query.serviceName){
+                query = {serviceName: req.query.serviceName}
+            }
             const cursor = reviewsCollection.find(query);
-            const orders = await cursor.toArray();
-            res.send(orders);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
         })
 
         app.post('/reviews', verifyJWT, async (req, res) => {
@@ -93,7 +93,7 @@ const run = async() => {
                     reviewUser: reviewUser,
                 }
             };
-            const result = await reviewsCollection.findOneAndUpdate(query, updatedDoc, {upsert: true, new: true});
+            const result = await reviewsCollection.updateOne(query, updatedDoc, {upsert: true});
             res.send(result);
         });
 
